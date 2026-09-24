@@ -1,8 +1,10 @@
 #define SBRK_ERROR ((char *)-1)
 
 struct stat;
+struct rusage;
 
 // system calls
+int wait2(int*, struct rusage*);
 int fork(void);
 int exit(int) __attribute__((noreturn));
 int wait(int *);

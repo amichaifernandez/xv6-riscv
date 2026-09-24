@@ -134,6 +134,7 @@ UPROGS=\
         $U/_time1\
         $U/_matmul\
         $U/_sleep\
+        $U/_time\
 	$U/_cat\
 	$U/_echo\
 	$U/_forktest\

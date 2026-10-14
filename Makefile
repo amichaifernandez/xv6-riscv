@@ -130,6 +130,7 @@ mkfs/mkfs: mkfs/mkfs.c $K/fs.h $K/param.h
 .PRECIOUS: %.o
 
 UPROGS=\
+        $U/_ps\
 	$U/_uptime\
         $U/_time1\
         $U/_matmul\

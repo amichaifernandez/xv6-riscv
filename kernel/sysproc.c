@@ -119,3 +119,12 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// fill in the user's array and rutnr the process count
+uint64
+sys_getprocs(void)
+{
+  uint64 addr;
+  argaddr(0, &addr);
+  return kgetprocs(addr);
+}

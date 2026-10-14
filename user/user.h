@@ -2,8 +2,10 @@
 
 struct stat;
 struct rusage;
+struct pstat;
 
 // system calls
+int getprocs(struct pstat*);
 int wait2(int*, struct rusage*);
 int fork(void);
 int exit(int) __attribute__((noreturn));

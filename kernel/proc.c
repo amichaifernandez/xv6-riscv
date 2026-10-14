@@ -764,3 +764,35 @@ procdump(void)
     printk("\n");
   }
 }
+
+int
+kgetprocs(uint64 addr)
+{
+  struct proc *p;
+  struct pstat ps;
+  int n = 0;
+
+  acquire(&wait_lock); //protects p->parent
+  for(p = proc; p < &proc[NPROC]; p++){
+    acquire(&p->lock);
+    if(p->state == UNUSED || p-> state == USED){ //skips empty/half slots
+      release(&p->lock);
+      continue;
+    }
+    ps.pid = p->pid;
+    ps.state = p->state;
+    ps.size = p->sz;
+    ps.ppid = p->parent ? p->parent-> pid : 0; //init has no parent
+    safestrcpy(ps.name, p-> name, sizeof(ps.name));
+    release(&p->lock);
+
+    //copy the entry into user array slot
+    if(either_copyout(1, addr + n * sizeof(ps), &ps, sizeof(ps)) < 0){
+      release(&wait_lock);
+      return -1;
+    }
+    n++;
+  }
+  release(&wait_lock);
+  return n;
+}

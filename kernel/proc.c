@@ -425,13 +425,7 @@ kwait(uint64 addr)
   }
 }
 
-// Per-CPU process scheduler.
-// Each CPU calls scheduler() after setting itself up.
-// Scheduler never returns.  It loops, doing:
-//  - choose a process to run.
-//  - swtch to start running that process.
-//  - eventually that process transfers control
-//    via swtch back to the scheduler.
+//kwait2 function addition (copied and pasted kwait and made edits)
 int
 kwait2(uint64 addr, uint64 rusage_addr)
 {
@@ -493,7 +487,29 @@ kwait2(uint64 addr, uint64 rusage_addr)
   }
 }
 
-//kwait2 function addition (copied and pasted kwait and made edits)
+#if SCHEDULER == SCHED_PRIO
+// effective prioirty used by the priority scheduler: base prioirty + aging
+// capped at MAXEFFPRIORITY and caller must hold p->lock
+static int
+effpriority(struct proc *p){
+#if AGING
+  int eff = p->priority + (ticks - p->readytime) / AGINGRATE;
+  if (eff > MAXEFFPRIORITY)
+    eff = MAXEFFPRIORITY;
+  return eff;
+#else
+  return p->priority;
+#endif
+}
+#endif
+
+// Per-CPU process scheduler.
+// Each CPU calls scheduler() after setting itself up.
+// Scheduler never returns.  It loops, doing:
+//  - choose a process to run.
+//  - swtch to start running that process.
+//  - eventually that process transfers control
+//    via swtch back to the scheduler.
 void
 scheduler(void)
 {
@@ -511,14 +527,15 @@ scheduler(void)
     intr_off();
 
     #if SCHEDULER == SCHED_PRIO
-      //finds RUNNABLE process with highest priority and ties goe with the first in the table
+      //Task 4: finds RUNNABLE process with highest priority and ties goe with the first in the table
+      //Tast 5: finds RUNNABLE process with highest effective priority (priority + aging) and ties goe with the first in the table
       struct proc *best = 0;
       int bestprio = -1;
       for (p = proc; p < &proc[NPROC]; p++) {
         acquire(&p->lock);
-        if (p->state == RUNNABLE && p->priority > bestprio) {
+        if (p->state == RUNNABLE && effpriority(p) > bestprio) {
           best = p;
-          bestprio = p->priority;
+          bestprio = effpriority(p);
         }
         release(&p->lock);
       }

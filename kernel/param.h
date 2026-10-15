@@ -16,3 +16,6 @@
 #define SCHED_RR    0                 // round robin scheduler
 #define SCHED_PRIO  1                 // priority based scheduler
 #define SCHEDULER   SCHED_PRIO
+#define MAXEFFPRIORITY 99             // effective priority cap
+#define AGING       1                 // 1 = aging on, 0 = off
+#define AGINGRATE   1                 //+1 effective prioirity per AGINGRATE ticks

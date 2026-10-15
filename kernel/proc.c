@@ -510,6 +510,41 @@ scheduler(void)
     intr_on();
     intr_off();
 
+    #if SCHEDULER == SCHED_PRIO
+      //finds RUNNABLE process with highest priority and ties goe with the first in the table
+      struct proc *best = 0;
+      int bestprio = -1;
+      for (p = proc; p < &proc[NPROC]; p++) {
+        acquire(&p->lock);
+        if (p->state == RUNNABLE && p->priority > bestprio) {
+          best = p;
+          bestprio = p->priority;
+        }
+        release(&p->lock);
+      }
+
+      if (best == 0) {
+        // nothing to run; stop running on this core until interrupt
+        asm volatile("wfi");
+        continue;
+      }
+
+      p = best;
+      acquire(&p->lock);
+      if (p->state == RUNNABLE) {  // double check
+        // switch to chosen process
+        p->state = RUNNING;
+        c->proc = p;
+        swtch(&c->context, &p->context);
+
+        // don't reenable interrupts on release
+        mycpu()->intena = 0;
+
+        c->proc =0;
+      }
+      release(&p->lock);
+    #else
+
     int found = 0;
     for (p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
@@ -535,6 +570,7 @@ scheduler(void)
       // nothing to run; stop running on this core until an interrupt.
       asm volatile("wfi");
     }
+#endif
   }
 }
 

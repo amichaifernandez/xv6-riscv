@@ -13,3 +13,6 @@
 #define MAXPATH     128               // maximum file path name
 #define USERSTACK   1                 // user stack pages
 #define MAXPRIORITY 49                // highest priority a process can have
+#define SCHED_RR    0                 // round robin scheduler
+#define SCHED_PRIO  1                 // priority based scheduler
+#define SCHEDULER   SCHED_PRIO

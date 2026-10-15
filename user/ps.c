@@ -10,6 +10,8 @@ main(int argc, char **argv)
   int nprocs;
   int i;
   char *state;
+  int now;
+  int age;
   static char *states[] = {
     [SLEEPING]  "sleeping",
     [RUNNABLE]  "runnable",
@@ -21,11 +23,13 @@ main(int argc, char **argv)
   if (nprocs < 0)
     exit(-1);
 
-  printf("pid\tstate\t\tsize\tppid\tname\n");
+  now = uptime();
+  printf("pid\tstate\t\tsize\tage\tprio\tppid\tname\n");
   for (i=0; i<nprocs; i++) {
     state = states[uproc[i].state];
-    printf("%d\t%s\t%ld\t%d\t%s\n", uproc[i].pid, state,
-                   uproc[i].size, uproc[i].ppid, uproc[i].name);
+    age = (uproc[i].state == RUNNABLE) ? now - uproc[i].readytime : 0;
+    printf("%d\t%s\t%ld\t%d\t%d\t%d\t%s\n", uproc[i].pid, state,
+                   uproc[i].size, age, uproc[i].priority, uproc[i].ppid, uproc[i].name);
   }
 
   exit(0);

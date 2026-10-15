@@ -128,3 +128,28 @@ sys_getprocs(void)
   argaddr(0, &addr);
   return kgetprocs(addr);
 }
+
+//reurn calling process prioirity
+uint64
+sys_getpriority(void)
+{
+  return myproc()->priority;
+}
+
+//set calling process priiory
+//returns 0 if successful, -1 if outside of maxprioiryt
+uint64
+sys_setpriority(void)
+{
+  int pr;
+  struct proc *p = myproc();
+
+  argint(0, &pr);
+  if(pr < 0 || pr > MAXPRIORITY)
+    return -1;
+
+  acquire(&p->lock);
+  p->priority = pr;
+  release(&p->lock);
+  return 0;
+}

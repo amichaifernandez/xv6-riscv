@@ -5,6 +5,8 @@ struct rusage;
 struct pstat;
 
 // system calls
+int getpriority(void);
+int setpriority(int);
 int getprocs(struct pstat*);
 int wait2(int*, struct rusage*);
 int fork(void);
